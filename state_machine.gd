@@ -11,6 +11,12 @@ func _ready():
 			states[child.name.to_lower()] = child
 			child.Transitioned.connect
 			
+	if initial_state:			#Si Initial state está definido, entonces lo inicializamos.
+		current_state = initial_state
+		current_state.Enter()
+		
+	print(states)
+	
 func _process(delta):
 	if current_state:
 		current_state.Update(delta)
@@ -28,7 +34,7 @@ func _on_child_transition(state, new_state_name):
 		return
 	
 	if current_state:
-		current_state.exit()
+		current_state.Exit()
 	
-	new_state.enter()
+	new_state.Enter()
 	current_state = new_state
