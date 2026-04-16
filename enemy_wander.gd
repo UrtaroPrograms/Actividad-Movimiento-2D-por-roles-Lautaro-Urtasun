@@ -29,5 +29,10 @@ func _update(delta: float):
 		_randomize_wander()
 		
 func _physics_update(_delta: float):
-	if character:
+	var distance = target.global_position - character.global_position
+	
+	if (distance.length() <= 200):
+		Transitioned.emit(self, "EnemyChase")
+	else:
 		character.velocity = move_direction * move_speed
+	

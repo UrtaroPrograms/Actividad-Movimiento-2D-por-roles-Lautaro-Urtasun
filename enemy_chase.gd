@@ -14,4 +14,9 @@ func _update(_delta: float):
 	pass
 	
 func _physics_update(_delta: float):
-	pass
+	var distance = target.global_position - character.global_position
+	
+	if distance.length() < 200:
+		character.velocity = distance.normalized() * move_speed
+	else:
+		Transitioned.emit(self, "EnemyWander")

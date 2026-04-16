@@ -32,3 +32,6 @@ move_speed = 30.0
 [node name="EnemyChase" type="Node" parent="EnemyStateMachine" unique_id=1935759525 node_paths=PackedStringArray("character")]
 script = ExtResource("5_r2h2s")
 character = NodePath("../..")
+
+[connection signal="Transitioned" from="EnemyStateMachine/EnemyWander" to="EnemyStateMachine" method="_on_child_transition"]
+[connection signal="Transitioned" from="EnemyStateMachine/EnemyChase" to="EnemyStateMachine" method="_on_child_transition"]
