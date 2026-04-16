@@ -7,6 +7,9 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
 size = Vector2(10, 569)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_h2yge"]
+size = Vector2(1152, 2)
+
 [node name="Main" type="Node" unique_id=172623019]
 
 [node name="Plataforma" parent="." unique_id=226555492 instance=ExtResource("1_0xm2m")]
@@ -40,3 +43,25 @@ shape = SubResource("RectangleShape2D_0xm2m")
 position = Vector2(571, 147)
 motion_mode = 1
 target = NodePath("../Personaje")
+
+[node name="Techo" type="StaticBody2D" parent="." unique_id=840163265]
+position = Vector2(306, -1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Techo" unique_id=1316280453]
+position = Vector2(270, 0)
+shape = SubResource("RectangleShape2D_h2yge")
+
+[node name="Marker2D" type="Marker2D" parent="." unique_id=403541824 groups=["patrol_points"]]
+position = Vector2(1079, 230)
+
+[node name="Marker2D2" type="Marker2D" parent="." unique_id=145558529 groups=["patrol_points"]]
+position = Vector2(707, 194)
+
+[node name="Marker2D3" type="Marker2D" parent="." unique_id=2132648279 groups=["patrol_points"]]
+position = Vector2(1048, 33)
+
+[node name="Marker2D4" type="Marker2D" parent="." unique_id=1657431794 groups=["patrol_points"]]
+position = Vector2(74, 39)
+
+[node name="Marker2D5" type="Marker2D" parent="." unique_id=470461303 groups=["patrol_points"]]
+position = Vector2(72, 264)
