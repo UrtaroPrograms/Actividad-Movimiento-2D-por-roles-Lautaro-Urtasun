@@ -4,19 +4,19 @@ class_name Recovering
 @export var character: CharacterBody2D
 var isRecovering
 	
-func Enter():
-	character.Call_animation("DashRecovery")
+func _enter():
+	character._call_animation("DashRecovery")
 	isRecovering = true;
 	
-func Exit():
+func _exit():
 	pass
 	
-func Update(_delta: float):
+func _update(_delta: float):
 	pass
 	
-func Physics_Update(_delta: float):
+func _physics_update(_delta: float):
 	if (isRecovering):
-		character.velocity.x = 0
+		character.velocity.x = move_toward(character.velocity.x, 0, 150) #Al terminar el dash, el personaje se detiene gradualmente.
 	else:
 		Transitioned.emit(self, "Idle")
 

@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://bcuxl7aldvjd0" path="res://plataforma.tscn" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://ewo31hpifhk" path="res://personaje.tscn" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://s7dcuwcqa5if" path="res://enemigo.tscn" id="3_h2yge"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
 size = Vector2(10, 569)
@@ -34,3 +35,8 @@ shape = SubResource("RectangleShape2D_0xm2m")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Pared2" unique_id=126289425]
 position = Vector2(1157, 270)
 shape = SubResource("RectangleShape2D_0xm2m")
+
+[node name="Enemigo" parent="." unique_id=1732266512 node_paths=PackedStringArray("target") instance=ExtResource("3_h2yge")]
+position = Vector2(571, 147)
+motion_mode = 1
+target = NodePath("../Personaje")

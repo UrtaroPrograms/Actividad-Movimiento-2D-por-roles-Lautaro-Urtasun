@@ -4,17 +4,17 @@ class_name Dashing
 @export var character: CharacterBody2D
 var isDashing
 	
-func Enter():
-	character.Call_animation("Dash")
+func _enter():
+	character._call_animation("Dash")
 	isDashing = true
 	
-func Exit():
+func _exit():
 	pass
 	
-func Update(_delta: float):
+func _update(_delta: float):
 	pass
 	
-func Physics_Update(_delta: float):
+func _physics_update(_delta: float):
 	
 	if (!isDashing):
 		if(character.is_on_floor):

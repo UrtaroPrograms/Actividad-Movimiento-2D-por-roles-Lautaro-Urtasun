@@ -3,16 +3,16 @@ class_name Idle
 
 @export var character: CharacterBody2D
 	
-func Enter():
-	character.Call_animation("Idle")
+func _enter():
+	character._call_animation("Idle")
 	
-func Exit():
+func _exit():
 	pass
 	
-func Update(_delta: float):
+func _update(_delta: float):
 	pass
 	
-func Physics_Update(_delta: float):
+func _physics_update(_delta: float):
 	if (abs(character.velocity.x) > 0):
 		Transitioned.emit(self, "Walking")
 		

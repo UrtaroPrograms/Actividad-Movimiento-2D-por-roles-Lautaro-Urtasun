@@ -3,24 +3,24 @@ class_name Airborne
 
 @export var character: CharacterBody2D
 	
-func Enter():
+func _enter():
 	pass
 	
-func Exit():
+func _exit():
 	pass
 	
-func Update(_delta: float):
+func _update(_delta: float):
 	if(character.velocity.y > 50):
-		character.Call_animation("Fall")
+		character._call_animation("Fall")
 	else: if(character.velocity.y < -50):
-		character.Call_animation("Jump")
+		character._call_animation("Jump")
 	else:
-		character.Call_animation("MaxHeight")
+		character._call_animation("MaxHeight")
 	
-func Physics_Update(_delta: float):
+func _physics_update(_delta: float):
 	
-	if abs(character.velocity.x) > 400:
-		Transitioned.emit(self,"dashing")
+	if (abs(character.velocity.x) > 400):
+		Transitioned.emit(self,"Dashing")
 	
 	if character.is_on_floor():
 		if(character.velocity.x == 0):
