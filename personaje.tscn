@@ -1,0 +1,305 @@
+[gd_scene format=3 uid="uid://ewo31hpifhk"]
+
+[ext_resource type="Texture2D" uid="uid://dqoa4cr4b6byf" path="res://Sprites/characterWalk.png" id="1_4e5bt"]
+[ext_resource type="Texture2D" uid="uid://bvb4ji6cujvik" path="res://Sprites/characterDash.png" id="1_35kqm"]
+[ext_resource type="Texture2D" uid="uid://cqmi4r5sl2rpn" path="res://Sprites/characterFall.png" id="1_gj0cs"]
+[ext_resource type="Texture2D" uid="uid://d1atrpcigyxlu" path="res://Sprites/characterIdle.png" id="1_ltgau"]
+[ext_resource type="Texture2D" uid="uid://dnsq3lk53i2nj" path="res://Sprites/CharacterDashRecovery.png" id="2_1y5k2"]
+[ext_resource type="Texture2D" uid="uid://6dcsgfgyxngy" path="res://Sprites/characterJump.png" id="2_ck3sb"]
+[ext_resource type="Texture2D" uid="uid://xgdu2rcldydm" path="res://Sprites/characterJumpMaxHeight.png" id="3_cx4ix"]
+
+[sub_resource type="GDScript" id="GDScript_4e5bt"]
+script/source = "extends CharacterBody2D
+
+
+const SPEED = 150
+const JUMP_VELOCITY = -300.0
+const DASH_SPEED = 900
+
+var heading = 1  #Inicializamos la variable 'heading' para indicar la dirección a la quedó apuntando el personaje. Solo la usa el dash para deteminar su dirección si se encuentra quieto.
+var double_jump_used = false
+var dash_used = false
+var is_dashing = false
+var recovering_from_dash = false
+
+func _physics_process(delta: float) -> void:
+	# Add the gravity.
+	if !is_dashing: #Solo ejecutamos el código de físicas si NO estamos dasheando.
+	
+		if not is_on_floor():
+			velocity += get_gravity() * delta
+
+	# Handle jump.
+		if Input.is_action_just_pressed(\"jump\") and is_on_floor():
+			velocity.y = JUMP_VELOCITY
+			double_jump_used = false #Declaramos el doble salto como disponible al momento de realizar el primer salto para ahorrarnos chequeo
+	
+		if Input.is_action_just_pressed(\"jump\") and !is_on_floor(): #Si apretamos el salto y NO estamos en el suelo, comprobamos si está disponible el doble salto y si lo está, lo ejecutamos
+			if double_jump_used == false:
+				double_jump_used = true
+				velocity.y = JUMP_VELOCITY
+			
+		if Input.is_action_just_pressed(\"dash\") and !dash_used:
+			dash_used = true;
+			is_dashing = true;
+			velocity.y = 0;  #El personaje no está afectado por la gravedad mientras realiza su dash
+			$DashDuration.start() #Activamos el timer del dash
+		
+	
+	# Get the input direction and handle the movement/deceleration.
+	# As good practice, you should replace UI actions with custom gameplay actions.
+		var direction := Input.get_axis(\"move_left\", \"move_right\")
+		if direction:
+			velocity.x = direction * SPEED
+		else:
+			velocity.x = move_toward(velocity.x, 0, SPEED)
+		
+	else:
+		velocity.x = DASH_SPEED * heading  #Cambiamos la velocidad por la velocidad del dash. Como las físicas se suspenden al activar el dash, este no se verá afectado por la gravedad ni la inercia durante el dash (pero sí después)
+
+	move_and_slide()
+	
+func _process(delta: float):
+		_find_animation()
+
+func _find_animation():
+		
+	if is_on_floor():  #Primero nos fijamos si está en el suelo.
+		if abs(velocity.x) > 0:   #Si se está moviendo, usamos la animación de caminar. Si está quieto, la de que está quieto.
+			$AnimatedSprite2D.play(\"Walk\")
+		else:
+			$AnimatedSprite2D.play(\"Idle\")
+	else:	#Si no está en el suelo, entonces comprobamos su velocidad vertical. Comprobamos alrededor de -50 y 50 para darle espacio al frame de altura máxima de salto.
+		if velocity.y < -50:
+			$AnimatedSprite2D.play(\"Jump\")
+		else: if velocity.y > 50:
+			$AnimatedSprite2D.play(\"Fall\")
+			
+		else: if (velocity.y >= -50 && velocity.y <= 50): 
+			$AnimatedSprite2D.play(\"MaxHeight\") #Si la velocidad en Y en un rango pequeño alrededor del cero (es decir, cuando alcanza el punto máximo del salto, cambiamos el sprite al de altura máxima)
+	
+	if is_dashing:
+		$AnimatedSprite2D.play(\"Dash\")
+	
+	#if recovering_from_dash:
+	#	$AnimatedSprite2D.play(\"DashRecovery\")    Comentado porque actualmente no funciona.
+		
+		
+	# Al final calculamos si el personaje debería mirar para la izquierda o la derecha según su velocidad x. Utilizamos un else if para que no quede mirando a la derecha por defecto. 
+	if velocity.x < 0:  
+		$AnimatedSprite2D.flip_h = true
+		heading = -1
+	else: if velocity.x > 0:
+		$AnimatedSprite2D.flip_h = false
+		heading = 1
+		
+
+
+func _on_dash_duration_timeout():   #Cuando termina el dash, activamos el timer de cooldown y de recuperación, al mismo tiempo que desactivamos el estado de dash
+	is_dashing = false
+	recovering_from_dash = true
+	$DashCooldown.start()
+	$DashRecovery.start()
+	
+func _on_dash_cooldown_timeout(): #Al concluir el cooldown el dash vuelve a estar  disponible
+	dash_used = false
+
+
+func _on_dash_recovery_timeout(): #El tiempo de recuperación sirve para determinar que se ejecute la animación correspondiente
+	recovering_from_dash = false
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ltgau"]
+size = Vector2(44, 44)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f8plh"]
+atlas = ExtResource("1_35kqm")
+region = Rect2(0, 0, 66, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pqm5q"]
+atlas = ExtResource("2_1y5k2")
+region = Rect2(0, 0, 66, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2vb47"]
+atlas = ExtResource("2_1y5k2")
+region = Rect2(67, 0, 66, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xeorn"]
+atlas = ExtResource("2_1y5k2")
+region = Rect2(134, 0, 66, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_chw5a"]
+atlas = ExtResource("2_1y5k2")
+region = Rect2(201, 0, 66, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wdwyh"]
+atlas = ExtResource("2_1y5k2")
+region = Rect2(268, 0, 66, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h755h"]
+atlas = ExtResource("2_1y5k2")
+region = Rect2(335, 0, 66, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pyv6t"]
+atlas = ExtResource("2_1y5k2")
+region = Rect2(402, 0, 66, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4e5bt"]
+atlas = ExtResource("1_4e5bt")
+region = Rect2(1, 0, 30, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ltgau"]
+atlas = ExtResource("1_4e5bt")
+region = Rect2(33, 0, 30, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yppqc"]
+atlas = ExtResource("1_4e5bt")
+region = Rect2(65, 0, 30, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gj0cs"]
+atlas = ExtResource("1_4e5bt")
+region = Rect2(97, 0, 30, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ck3sb"]
+atlas = ExtResource("1_4e5bt")
+region = Rect2(129, 0, 30, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cx4ix"]
+atlas = ExtResource("1_4e5bt")
+region = Rect2(161, 0, 30, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_35kqm"]
+atlas = ExtResource("1_4e5bt")
+region = Rect2(193, 0, 30, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1y5k2"]
+atlas = ExtResource("1_4e5bt")
+region = Rect2(225, 0, 30, 24)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_38t12"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f8plh")
+}],
+"loop": true,
+"name": &"Dash",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 0.2,
+"texture": SubResource("AtlasTexture_pqm5q")
+}, {
+"duration": 0.2,
+"texture": SubResource("AtlasTexture_2vb47")
+}, {
+"duration": 0.2,
+"texture": SubResource("AtlasTexture_xeorn")
+}, {
+"duration": 0.2,
+"texture": SubResource("AtlasTexture_chw5a")
+}, {
+"duration": 0.2,
+"texture": SubResource("AtlasTexture_wdwyh")
+}, {
+"duration": 0.2,
+"texture": SubResource("AtlasTexture_h755h")
+}, {
+"duration": 0.2,
+"texture": SubResource("AtlasTexture_pyv6t")
+}],
+"loop": false,
+"name": &"DashRecovery",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_gj0cs")
+}],
+"loop": true,
+"name": &"Fall",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_ltgau")
+}],
+"loop": false,
+"name": &"Idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_ck3sb")
+}],
+"loop": true,
+"name": &"Jump",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_cx4ix")
+}],
+"loop": true,
+"name": &"MaxHeight",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4e5bt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ltgau")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yppqc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gj0cs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ck3sb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cx4ix")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_35kqm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1y5k2")
+}],
+"loop": true,
+"name": &"Walk",
+"speed": 12.0
+}]
+
+[node name="Personaje" type="CharacterBody2D" unique_id=529948523]
+script = SubResource("GDScript_4e5bt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=388194391]
+position = Vector2(0, -1)
+shape = SubResource("RectangleShape2D_ltgau")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1724140867]
+position = Vector2(-0.125, 3.5)
+scale = Vector2(1.4583334, 1.4583334)
+sprite_frames = SubResource("SpriteFrames_38t12")
+animation = &"DashRecovery"
+frame = 6
+frame_progress = 1.0
+
+[node name="DashDuration" type="Timer" parent="." unique_id=1306850327]
+wait_time = 0.1
+one_shot = true
+
+[node name="DashCooldown" type="Timer" parent="." unique_id=641826470]
+one_shot = true
+
+[node name="DashRecovery" type="Timer" parent="." unique_id=619275705]
+wait_time = 0.2
+one_shot = true
+
+[connection signal="timeout" from="DashDuration" to="." method="_on_dash_duration_timeout"]
+[connection signal="timeout" from="DashCooldown" to="." method="_on_dash_cooldown_timeout"]
+[connection signal="timeout" from="DashRecovery" to="." method="_on_dash_recovery_timeout"]

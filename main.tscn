@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://xv0bggim1om2"]
+
+[ext_resource type="PackedScene" uid="uid://bcuxl7aldvjd0" path="res://plataforma.tscn" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://ewo31hpifhk" path="res://personaje.tscn" id="2_h2yge"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
+size = Vector2(10, 569)
+
+[node name="Main" type="Node" unique_id=172623019]
+
+[node name="Plataforma" parent="." unique_id=226555492 instance=ExtResource("1_0xm2m")]
+position = Vector2(255, 556)
+scale = Vector2(4, 4)
+
+[node name="Plataforma2" parent="." unique_id=1740968885 instance=ExtResource("1_0xm2m")]
+position = Vector2(722, 475)
+scale = Vector2(4, 4)
+
+[node name="Plataforma3" parent="." unique_id=447389194 instance=ExtResource("1_0xm2m")]
+position = Vector2(1219, 521)
+scale = Vector2(4, 4)
+
+[node name="Personaje" parent="." unique_id=529948523 instance=ExtResource("2_h2yge")]
+position = Vector2(88, 270)
+
+[node name="Pared" type="StaticBody2D" parent="." unique_id=1684422717]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pared" unique_id=627228392]
+position = Vector2(-5, 274.5)
+shape = SubResource("RectangleShape2D_0xm2m")
+
+[node name="Pared2" type="StaticBody2D" parent="." unique_id=1844417537]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pared2" unique_id=126289425]
+position = Vector2(1157, 270)
+shape = SubResource("RectangleShape2D_0xm2m")
