@@ -9,14 +9,12 @@ func _ready():
 	for child in get_children():
 		if child is State:
 			states[child.name.to_lower()] = child
-			#child.Transitioned.connect
+			child.Transitioned.connect
 			
 	if initial_state:			#Si Initial state está definido, entonces lo inicializamos.
 		current_state = initial_state
 		current_state._enter()
-		
-	print(states)
-	
+			
 func _process(delta):
 	if current_state:
 		current_state._update(delta)

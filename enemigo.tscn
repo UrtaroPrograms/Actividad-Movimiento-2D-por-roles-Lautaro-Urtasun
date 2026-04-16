@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://c7dc7oiv2gytn" path="res://state_machine.gd" id="3_j8qs0"]
 [ext_resource type="Script" uid="uid://jxwrlldbkg3h" path="res://enemy_wander.gd" id="4_ypu82"]
 [ext_resource type="Script" uid="uid://qyb3upug3hgy" path="res://enemy_chase.gd" id="5_r2h2s"]
+[ext_resource type="Script" uid="uid://c3ydxgiykymk1" path="res://enemy_patrolling.gd" id="6_57rph"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fhm17"]
 size = Vector2(34, 34)
@@ -22,16 +23,26 @@ shape = SubResource("RectangleShape2D_fhm17")
 
 [node name="EnemyStateMachine" type="Node" parent="." unique_id=1370560867 node_paths=PackedStringArray("initial_state")]
 script = ExtResource("3_j8qs0")
-initial_state = NodePath("EnemyWander")
+initial_state = NodePath("EnemyPatrolling")
 
 [node name="EnemyWander" type="Node" parent="EnemyStateMachine" unique_id=1651197253 node_paths=PackedStringArray("character")]
 script = ExtResource("4_ypu82")
 character = NodePath("../..")
 move_speed = 30.0
+max_wander_count = 3.0
 
 [node name="EnemyChase" type="Node" parent="EnemyStateMachine" unique_id=1935759525 node_paths=PackedStringArray("character")]
 script = ExtResource("5_r2h2s")
 character = NodePath("../..")
 
+[node name="EnemyPatrolling" type="Node" parent="EnemyStateMachine" unique_id=1583951066 node_paths=PackedStringArray("character")]
+script = ExtResource("6_57rph")
+waypoint_group_name = "patrol_points"
+character = NodePath("../..")
+
+[node name="PatrolThinkTimer" type="Timer" parent="EnemyStateMachine/EnemyPatrolling" unique_id=303524076]
+
 [connection signal="Transitioned" from="EnemyStateMachine/EnemyWander" to="EnemyStateMachine" method="_on_child_transition"]
 [connection signal="Transitioned" from="EnemyStateMachine/EnemyChase" to="EnemyStateMachine" method="_on_child_transition"]
+[connection signal="Transitioned" from="EnemyStateMachine/EnemyPatrolling" to="EnemyStateMachine" method="_on_child_transition"]
+[connection signal="timeout" from="EnemyStateMachine/EnemyPatrolling/PatrolThinkTimer" to="EnemyStateMachine/EnemyPatrolling" method="_on_patrol_think_timer_timeout"]
